@@ -88,3 +88,10 @@ const TimerForm = React.createClass({
       );
     },
 });
+
+const Timer = React.createClass({
+  const elapsedString = helpers.renderElapsedString(this.props.elapsed);
+  render: function(){
+    
+  }
+});
