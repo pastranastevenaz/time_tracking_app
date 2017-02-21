@@ -1,12 +1,32 @@
 const TimeDashboard = React.createClass({
+  getInitialState:function(){
+    return {
+      timers:[
+        {
+          title: 'Learn React'
+          project:'Web Domination'
+          elapsed:89235
+          id: 1
+          runningSince: Date.now(),
+        },
+        {
+          title: 'Javascript'
+          project:'Mr Robot'
+          elapsed:2222
+          id: 21
+          runningSince:null,
+        },
+      ]
+    };
+  },
   render: function(){
     return(
       <div className="ui three column centered grid">
         <div className="column">
-          <EditableTimerList />
-          <ToggleableTimerForm
-            isOpen={true}
-          />
+          <EditableTimerList
+            timers={this.state.timers}
+           />
+          <ToggleableTimerForm  />
         </div>
       </div>
     );
@@ -15,21 +35,19 @@ const TimeDashboard = React.createClass({
 
 const EditableTimerList = React.createClass({
   render:function(){
+    const timers = this.props.timers.map((timer){
+      <EditableTimer
+        key={timer.id},
+        id={timer.id},
+        title={timer.title},
+        project={timer.project},
+        elapsed={timer.elapsed},
+        runningSince={timer.runningSince}
+      />
+    });
     return(
       <div id="timers">
-        <EditableTimer
-          title='Learn React'
-          project='Web Domination'
-          elapsed='89235'
-          runningSince={null}
-          editFormOpen={false}
-        />
-        <EditableTimer
-          title='Learn Extreme Ironing'
-          project='World Domination'
-          elapsed='2222'
-          runningSince={null}
-          editFormOpen={false}
+        {timers}
         />
         </div>
 
@@ -109,8 +127,9 @@ const ToggleableTimerForm = React.createClass({
 });
 
 const Timer = React.createClass({
-  const elapsedString = helpers.renderElapsedString(this.props.elapsed);
   render: function(){
+    const elapsedString = helpers.renderElapsedString(this.props.elapsed);
+
     return(
       <div className="ui centered card">
         <div className="content">
@@ -122,18 +141,19 @@ const Timer = React.createClass({
           </div>
         <div className="center aligned description">
           <h2>
-          elapsedString
+        {elapsedString}
           </h2>
         </div>
         <div className="extra content">
           <span className="right floated edit icon">
-              <i className"edit icon"></i>
+              <i className="edit icon"></i>
           </span>
           <span className="right flaoted trash icon">
             <i className="trash icon"></i>
           </span>
         </div>
-        <div>
+        </div>
+
           <div className="ui button attached blue basic button">
           Start
         </div>
@@ -143,5 +163,5 @@ const Timer = React.createClass({
 });
 
 ReactDOM.render(
-  <TimeDashboard />, document.getElementById('content');
+  <TimeDashboard />, document.getElementById('content')
 );
