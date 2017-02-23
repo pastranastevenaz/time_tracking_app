@@ -25,11 +25,28 @@ const TimersDashboard = React.createClass({
         const t = helpers.newTimer(timer);
         this.setState({timers: this.state.timers.concat(t)});
     },
+    handleEditFormSubmit: function(attrs) {
+        this.updateTImer(attrs);
+    },
+    updateTImer: function(attrs) {
+        this.setState({
+            timers: this.state.timers.map((timer) => {
+                if (timer.id === attrs.id) {
+                    return Object.assign({}, timer, {
+                        title: attrs.title,
+                        project: attrs.project
+                    });
+                } else {
+                    return timer;
+                }
+            })
+        });
+    },
     render: function() {
         return (
             <div className="ui three column centered grid">
                 <div className="column">
-                    <EditableTimerList timers={this.state.timers}/>
+                    <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit}/>
                     <ToggleableTimerForm onFormSubmit={this.handleCreateFormSubmit}/>
                 </div>
             </div>
@@ -39,7 +56,7 @@ const TimersDashboard = React.createClass({
 
 const EditableTimerList = React.createClass({
     render: function() {
-        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince}/>));
+        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince} onFormSubmit={this.props.onFormSubmit}/>));
         return (
             <div id="timers">
                 {timers}
@@ -61,17 +78,20 @@ const EditableTimer = React.createClass({
         this.props.onFormSubmit(timer);
         this.closeForm();
     },
-    openFrom: function() {
-        this.setState : ({editFormOpen: true});
+    openForm: function() {
+        this.setState({editFormOpen: true});
+    },
+    closeForm: function() {
+        this.setState({editFormOpen: false});
     },
     getInitialState: function() {
         return {editFormOpen: false}
     },
     render: function() {
         if (this.state.editFormOpen) {
-            return (<TimerForm id={this.props.id} title={this.props.title} project={this.props.project}/>);
+            return (<TimerForm id={this.props.id} title={this.props.title} project={this.props.project} onFormSubmit={this.handleSubmit} onFormClose={this.handleFormClose}/>);
         } else {
-            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince}/>);
+            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick}/>);
         }
     }
 });
