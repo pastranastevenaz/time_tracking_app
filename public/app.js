@@ -50,6 +50,20 @@ const EditableTimerList = React.createClass({
 });
 
 const EditableTimer = React.createClass({
+    handleEditClick: function() {
+        this.openForm();
+    },
+    handleFormClose: function(timer) {
+        this.closeForm();
+    },
+
+    handleSubmit: function(timer) {
+        this.props.onFormSubmit(timer);
+        this.closeForm();
+    },
+    openFrom: function() {
+        this.setState : ({editFormOpen: true});
+    },
     getInitialState: function() {
         return {editFormOpen: false}
     },
@@ -164,8 +178,6 @@ const ToggleableTimerForm = React.createClass({
         }
     }
 });
-
-
 
 ReactDOM.render(
     <TimersDashboard/>, document.getElementById('content'));
