@@ -1,23 +1,33 @@
-const TimeDashboard = React.createClass({
+const TimersDashboard = React.createClass({
   getInitialState:function(){
     return {
       timers:[
         {
-          title: 'Learn React'
-          project:'Web Domination'
-          elapsed:89235
-          id: 1
+          title: 'Learn React',
+          project:'Web Domination',
+          elapsed:12121 ,
+          id: uuid.v4(),
+
           runningSince: Date.now(),
         },
         {
-          title: 'Javascript'
-          project:'Mr Robot'
-          elapsed:2222
-          id: 21
+          title: 'Javascript',
+          project:'Mr Robot',
+          elapsed:2222,
+          id: uuid.v4(),
           runningSince:null,
         },
       ]
     };
+  },
+  handleCreateFormSubmit: function(timer){
+    this.createTimer(timer);
+  },
+  createTimer: function(timer){
+    const t = helpers.newTimer(timer);
+    this.setState({
+      timers: this.state.timers.concat(t),
+    });
   },
   render: function(){
     return(
@@ -26,7 +36,9 @@ const TimeDashboard = React.createClass({
           <EditableTimerList
             timers={this.state.timers}
            />
-          <ToggleableTimerForm  />
+          <ToggleableTimerForm
+            onFormSubmit={this.state.handleCreateFormSubmit}
+           />
         </div>
       </div>
     );
@@ -34,6 +46,7 @@ const TimeDashboard = React.createClass({
 });
 
 const EditableTimerList = React.createClass({
+
   render:function(){
     const timers = this.props.timers.map((timer){
       <EditableTimer
@@ -44,7 +57,7 @@ const EditableTimerList = React.createClass({
         elapsed={timer.elapsed},
         runningSince={timer.runningSince}
       />
-    });
+    }),
     return(
       <div id="timers">
         {timers}
@@ -84,6 +97,14 @@ const EditableTimer = React.createClass({
     });
 
 const TimerForm = React.createClass({
+  handleSubmit: function(){
+    this.props.onFormSubmit({
+      id: this.props.id,
+      title: this.refs.title.value,
+      project: this.refs.project.value,
+
+    });
+  },
     render: function() {
       const submitText = this.props.title ? 'Update' : 'Create';
       return(
@@ -99,10 +120,10 @@ const TimerForm = React.createClass({
                 <input type="text" defaultValue={this.props.project} />
               </div>
               <div className="ui two bottom attached buttons">
-                <button className="ui basic blue button">
+                <button className="ui basic blue button" onClick={this.handleSubmit}>
                   {submitText}
                 </button>
-                <button className="ui basic red button">
+                <button className="ui basic red button" onClick={this.props.onFormClose}>
                   Cancel
                 </button>
               </div>
@@ -123,10 +144,21 @@ const ToggleableTimerForm = React.createClass({
   handleFormOpen: function(){
     this.setState({ isOpen: true )});
   },
+
+  handleFormClose: function(){
+    this.setState({ isOpen: false });
+  },
+  handleFormSubmit: function(){
+    this.props.onFormSubmit(timer);
+    this.setState({ isOpen: false });
+  },
   render: function(){
     if(this.state.isOpen){
       return (
-        <TimerForm />
+        <TimerForm
+        onFormSubmit={this.handleFormSubmit}
+        onFormClose={this.handleFormClose}
+        />
       );
     } else {
       return(
@@ -159,7 +191,7 @@ const Timer = React.createClass({
           </h2>
         </div>
         <div className="extra content">
-          <span className="right floated edit icon">
+          <span className="right floated edit icon" onClick={this.props.onEditClick}>
               <i className="edit icon"></i>
           </span>
           <span className="right flaoted trash icon">
