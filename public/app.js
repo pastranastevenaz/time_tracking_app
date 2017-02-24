@@ -26,9 +26,9 @@ const TimersDashboard = React.createClass({
         this.setState({timers: this.state.timers.concat(t)});
     },
     handleEditFormSubmit: function(attrs) {
-        this.updateTImer(attrs);
+        this.updateTimer(attrs);
     },
-    handleTrachClick: function(timerId) {
+    handleTrashClick: function(timerId) {
         this.deleTimer(timerId);
     },
     deleTimer: function(timerID) {
@@ -36,7 +36,13 @@ const TimersDashboard = React.createClass({
             timers: this.state.timers.filter(t => t.id !== timerID)
         });
     },
-    updateTImer: function(attrs) {
+    handleStartClick: function(timerid) {
+        this.startTimer(timerid);
+    },
+    handleStopClick: function(timerid) {
+        this.stopTImer(timerid);
+    },
+    updateTimer: function(attrs) {
         this.setState({
             timers: this.state.timers.map((timer) => {
                 if (timer.id === attrs.id) {
@@ -50,11 +56,48 @@ const TimersDashboard = React.createClass({
             })
         });
     },
+    deleteTimer: function(timerid) {
+        this.setState({
+            timers: this.state.timers.filter(t => t.id !== timerid)
+        });
+    },
+    startTimer: function(timerId) {
+        const now = Date.now();
+
+        this.setState({
+            timers: this.state.timers.map((timer) => {
+                if (timer.id === timerId) {
+                    return Object.assign({}, timer, {runningSince: now});
+                } else {
+                    return timer;
+                }
+            })
+        });
+    },
+
+    stopTimer: function(timerid) {
+        const now = Date.now();
+
+        this.setState({
+            timers: this.state.timers.map((timer) => {
+                if (timer.id === timerid) {
+                    const lastElapsed = now - timer.runningSince;
+
+                    return Object.assign({}, timer, {
+                        elapsed: timer.elapsed + lastElapsed,
+                        runningSince: null
+                    });
+                } else {
+                    return timer;
+                }
+            })
+        });
+    },
     render: function() {
         return (
             <div className="ui three column centered grid">
                 <div className="column">
-                    <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit} onTrashClick={this.handleTrachClick}/>
+                    <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit} onTrashClick={this.handleTrashClick} onStartClick={this.handleStartClick} onStopClick={this.handleStopClick}/>
                     <ToggleableTimerForm onFormSubmit={this.handleCreateFormSubmit}/>
                 </div>
             </div>
@@ -64,12 +107,11 @@ const TimersDashboard = React.createClass({
 
 const EditableTimerList = React.createClass({
     render: function() {
-        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince} onFormSubmit={this.props.onFormSubmit} onTrashClick={this.props.onTrashClick} />));
+        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince} onFormSubmit={this.props.onFormSubmit} onTrashClick={this.props.onTrashClick} onStartClick={this.props.onStartClick} onStopClick={this.props.onStopClick}/>));
         return (
             <div id="timers">
                 {timers}
             </div>
-
         );
     }
 });
@@ -99,14 +141,29 @@ const EditableTimer = React.createClass({
         if (this.state.editFormOpen) {
             return (<TimerForm id={this.props.id} title={this.props.title} project={this.props.project} onFormSubmit={this.handleSubmit} onFormClose={this.handleFormClose}/>);
         } else {
-            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick} onTrashClick={this.props.onTrashClick}/>);
+            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick} onTrashClick={this.props.onTrashClick} onStartClick={this.props.onStartClick} onStopClick={this.props.onStopClick}/>);
         }
     }
 });
 
 const Timer = React.createClass({
-    handleTrachClick: function() {
+    componentDidMount: function() {
+        this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
+    },
+    componentWillUnmount: function () {
+    clearInterval(this.forceUpdateInterval);
+  },
+    handleTrashClick: function() {
         this.props.onTrashClick(this.props.id);
+    },
+    componentWillUnmount: function() {
+        clearInterval(this.forceUpdateInterval);
+    },
+    handleStartClick: function() {
+        this.props.onStartClick(this.props.id);
+    },
+    handleStopClick: function() {
+        this.props.onStopClick(this.props.id);
     },
     render: function() {
         const elapsedString = helpers.renderElapsedString(this.props.elapsed);
@@ -128,7 +185,7 @@ const Timer = React.createClass({
                         <span className="right floated edit icon" onClick={this.props.onEditClick}>
                             <i className="edit icon"></i>
                         </span>
-                        <span className="right flaoted trash icon" onClick={this.handleTrachClick}>
+                        <span className="right flaoted trash icon" onClick={this.handleTrashClick}>
                             <i className="trash icon"></i>
                         </span>
                     </div>
@@ -209,6 +266,21 @@ const ToggleableTimerForm = React.createClass({
         }
     }
 });
+const TimerActionButton = React.createClass({
+    render: function() {
+        if (this.props.timerIsRunning) {
+            return (
+                <div className="ui buttom attached red basic button" onClick={this.props.onStopClick}>
+                    Stop
+                </div>
+            );
+        } else { < div className = "ui buttom attached green basic button" onClick = {
+                this.props.onStartClick
+            } > Start < /div>
+  }
+  },
+});
 
 ReactDOM.render(
-    <TimersDashboard/>, document.getElementById('content'));
+    <TimersDashboard/ >,
+            document.getElementById('content'));
