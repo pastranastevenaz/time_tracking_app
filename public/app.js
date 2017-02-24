@@ -28,6 +28,14 @@ const TimersDashboard = React.createClass({
     handleEditFormSubmit: function(attrs) {
         this.updateTImer(attrs);
     },
+    handleTrachClick: function(timerId) {
+        this.deleTimer(timerId);
+    },
+    deleTimer: function(timerID) {
+        this.setState({
+            timers: this.state.timers.filter(t => t.id !== timerID)
+        });
+    },
     updateTImer: function(attrs) {
         this.setState({
             timers: this.state.timers.map((timer) => {
@@ -46,7 +54,7 @@ const TimersDashboard = React.createClass({
         return (
             <div className="ui three column centered grid">
                 <div className="column">
-                    <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit}/>
+                    <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit} onTrashClick={this.handleTrachClick}/>
                     <ToggleableTimerForm onFormSubmit={this.handleCreateFormSubmit}/>
                 </div>
             </div>
@@ -56,7 +64,7 @@ const TimersDashboard = React.createClass({
 
 const EditableTimerList = React.createClass({
     render: function() {
-        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince} onFormSubmit={this.props.onFormSubmit}/>));
+        const timers = this.props.timers.map((timer) => (<EditableTimer key={timer.id} id={timer.id} title={timer.title} project={timer.project} elapsed={timer.elapsed} runningSince={timer.runningSince} onFormSubmit={this.props.onFormSubmit} onTrashClick={this.props.onTrashClick} />));
         return (
             <div id="timers">
                 {timers}
@@ -91,12 +99,15 @@ const EditableTimer = React.createClass({
         if (this.state.editFormOpen) {
             return (<TimerForm id={this.props.id} title={this.props.title} project={this.props.project} onFormSubmit={this.handleSubmit} onFormClose={this.handleFormClose}/>);
         } else {
-            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick}/>);
+            return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick} onTrashClick={this.props.onTrashClick}/>);
         }
     }
 });
 
 const Timer = React.createClass({
+    handleTrachClick: function() {
+        this.props.onTrashClick(this.props.id);
+    },
     render: function() {
         const elapsedString = helpers.renderElapsedString(this.props.elapsed);
         return (
@@ -117,7 +128,7 @@ const Timer = React.createClass({
                         <span className="right floated edit icon" onClick={this.props.onEditClick}>
                             <i className="edit icon"></i>
                         </span>
-                        <span className="right flaoted trash icon">
+                        <span className="right flaoted trash icon" onClick={this.handleTrachClick}>
                             <i className="trash icon"></i>
                         </span>
                     </div>
