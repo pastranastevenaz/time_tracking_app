@@ -171,7 +171,7 @@ const Timer = React.createClass({
     render: function() {
         const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
         return (
-            <div className="ui centered card">
+            <div className="ui centered card" id="time-card">
                 <div className="content">
                     <div className="header">
                         {this.props.title}
@@ -184,7 +184,7 @@ const Timer = React.createClass({
                             {elapsedString}
                         </h2>
                     </div>
-                    <div className="extra content">
+                    <div className="extra content" id = "content-buttons">
                         <span className="right floated edit icon" onClick={this.props.onEditClick}>
                             <i className="edit icon"></i>
                         </span>
