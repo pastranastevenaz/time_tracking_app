@@ -146,10 +146,15 @@ const EditableTimer = React.createClass({
         } else {
             return (<Timer id={this.props.id} title={this.props.title} project={this.props.project} elapsed={this.props.elapsed} runningSince={this.props.runningSince} onEditClick={this.handleEditClick} onTrashClick={this.props.onTrashClick} onStartClick={this.props.onStartClick} onStopClick={this.props.onStopClick}/>);
         }
-    }
+    },
 });
 
 const Timer = React.createClass({
+	getInitialState: function(){
+		return	{
+			active : true
+		}
+	},
     componentDidMount: function() {
         this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
     },
@@ -168,15 +173,39 @@ const Timer = React.createClass({
     handleStopClick: function() {
         this.props.onStopClick(this.props.id);
     },
+	mouseover: function(){
+		this.setState({
+			active : false
+		})
+	},
+	mouseleave: function(){
+		this.setState({
+			active : false
+		})
+	},
+
+    
     render: function() {
+		const handlemouseover = function(){
+let iDiv = document.getElementById("#hidethis");
+		if(iDiv.style.display=="none"){
+        iDiv.style.display="";
+    }else{
+        iDiv.style.display="none";
+    }   
+		};
         const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
         return (
+
             <div className="ui centered card" id="time-card">
+=======
+            <div className="ui centered card" >
+
                 <div className="content">
                     <div className="header">
                         {this.props.title}
                     </div>
-                    <div className="meta">
+                    <div className="meta"> 	 
                         {this.props.project}
                     </div>
                     <div className="center aligned description">
@@ -186,9 +215,10 @@ const Timer = React.createClass({
                     </div>
                     <div className="extra content" id = "content-buttons">
                         <span className="right floated edit icon" onClick={this.props.onEditClick}>
+
                             <i className="edit icon"></i>
                         </span>
-                        <span className="right flaoted trash icon" onClick={this.handleTrashClick}>
+                        <span className="right flaoted trash icon" onClick={this.handleTrashClick} id="hidethis" >
                             <i className="trash icon"></i>
                         </span>
                     </div>
